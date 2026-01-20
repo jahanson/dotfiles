@@ -29,6 +29,19 @@ return {
     local ensure_denols
 
     -- Deno configuration
+    local function deno_settings_for_root(root)
+      if not root then
+        return {}
+      end
+      for _, name in ipairs({ "deno.json", "deno.jsonc", "deno.config.json", "deno.config.jsonc" }) do
+        local path = root .. "/" .. name
+        if vim.fn.filereadable(path) == 1 then
+          return { config = vim.fs.normalize(path) }
+        end
+      end
+      return {}
+    end
+
     opts.servers.denols = vim.tbl_deep_extend("force", opts.servers.denols or {}, {
       root_dir = function(fname)
         return deno_from_file(fname)
@@ -38,6 +51,8 @@ return {
       settings = {
         deno = {
           enable = true,
+          ---@diagnostic disable-next-line: assign-type-mismatch
+          config = vim.NIL,
           suggest = {
             imports = {
               hosts = {
@@ -138,7 +153,8 @@ return {
     end
 
     ensure_denols = function(bufnr)
-      if not deno_from_file(bufnr) then
+      local root = deno_from_file(bufnr)
+      if not root then
         return
       end
 
@@ -164,7 +180,13 @@ return {
       end
 
       if config then
-        vim.lsp.start(config, { bufnr = bufnr })
+        local settings = vim.tbl_deep_extend("force", {}, config.settings or {})
+        settings.deno = vim.tbl_deep_extend("force", settings.deno or {}, deno_settings_for_root(root))
+        local new_config = vim.tbl_deep_extend("force", {}, config, {
+          settings = settings,
+          root_dir = root,
+        })
+        vim.lsp.start(new_config, { bufnr = bufnr })
       end
     end
   end,
