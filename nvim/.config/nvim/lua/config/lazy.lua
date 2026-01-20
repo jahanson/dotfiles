@@ -51,19 +51,3 @@ require("lazy").setup({
     },
   },
 })
-
-local triforce = require("triforce.lualine").components()
-
-require("lualine").setup({
-  sections = {
-    lualine_x = {
-      triforce.level,
-      triforce.achievements,
-      triforce.streak,
-      triforce.session_time,
-      "encoding",
-      "fileformat",
-      "filetype",
-    },
-  },
-})
