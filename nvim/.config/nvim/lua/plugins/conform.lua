@@ -4,7 +4,6 @@ return {
     formatters_by_ft = {
       markdown = { "prettier" },
       dockerfile = { "dockerfmt" },
-      kdl = { "kdlfmt" },
     },
     formatters = {
       shfmt = {
@@ -13,11 +12,6 @@ return {
       dockerfmt = {
         command = "dockerfmt",
         args = { "-i", "2", "$FILENAME" },
-        stdin = false,
-      },
-      kdlfmt = {
-        command = "kdlfmt",
-        args = { "format", "$FILENAME" },
         stdin = false,
       },
     },
